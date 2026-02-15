@@ -12,3 +12,15 @@ export const authGuard: CanActivateFn = () => {
 
   return router.createUrlTree(['/login']);
 };
+
+/** Redireciona para home se o usuário já estiver logado (evita mostrar login desnecessariamente) */
+export const guestGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  if (auth.isAuthenticated()) {
+    return router.createUrlTree(['/']);
+  }
+
+  return true;
+};
