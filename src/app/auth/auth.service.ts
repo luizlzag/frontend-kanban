@@ -16,6 +16,18 @@ export class AuthService {
   readonly user = this.userSignal.asReadonly();
   readonly isAuthenticated = computed(() => !!this.tokenSignal());
 
+  /** Retorna apenas o username do objeto user (quando user é JSON) */
+  readonly username = computed(() => {
+    const raw = this.userSignal();
+    if (!raw) return '';
+    try {
+      const parsed = JSON.parse(raw) as { username?: string };
+      return parsed.username ?? raw;
+    } catch {
+      return raw;
+    }
+  });
+
   readonly githubLoginUrl = 'https://backend-kanban-bhsz.onrender.com/auth/github';
 
   saveAuth(token: string, user: string): void {

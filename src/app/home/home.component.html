@@ -1,6 +1,14 @@
-<div>
+<div class="header container-main">
     <h1>Home</h1>
-    <p>Bem-vindo ao seu Kanban! 🎉</p>
-    <p>O board será implementado em breve.</p>
-    <button type="button" class="btn-logout" (click)="logout()">Sair</button>
+    <div class="user-dropdown">
+        <button type="button" class="avatar" (click)="toggleDropdown()" [attr.aria-expanded]="dropdownOpen()" aria-haspopup="true">
+            {{ avatarLetter }}
+        </button>
+        @if (dropdownOpen()) {
+            <div class="dropdown-menu">
+                <div class="dropdown-header">{{ auth.username() }}</div>
+                <button type="button" class="dropdown-item" (click)="logout()">Sair</button>
+            </div>
+        }
+    </div>
 </div>

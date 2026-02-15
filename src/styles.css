@@ -23,6 +23,11 @@ h2{
    font-size: 18px;
    color: #f8fafc;
 }
+
+.container-main{
+    margin: 0 auto;
+    padding: 0 20px;
+}
   
 .subtitle {
     color: #94a3b8;
