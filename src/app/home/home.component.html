@@ -1,14 +1,23 @@
-<div class="header container-main">
-    <h1>Home</h1>
-    <div class="user-dropdown">
-        <button type="button" class="avatar" (click)="toggleDropdown()" [attr.aria-expanded]="dropdownOpen()" aria-haspopup="true">
-            {{ avatarLetter }}
-        </button>
-        @if (dropdownOpen()) {
-            <div class="dropdown-menu">
-                <div class="dropdown-header">{{ auth.username() }}</div>
-                <button type="button" class="dropdown-item" (click)="logout()">Sair</button>
-            </div>
-        }
-    </div>
+<div>
+    <header class="header container-main">
+        <h1>Kanban</h1>
+        <div class="user-dropdown">
+            <button type="button" class="avatar" (click)="toggleDropdown()" [attr.aria-expanded]="dropdownOpen()" aria-haspopup="true">
+                @if (auth.avatarUrl()) {
+                    <img [src]="auth.avatarUrl()" alt="" class="avatar-img" />
+                } @else {
+                    {{ avatarLetter }}
+                }
+            </button>
+            @if (dropdownOpen()) {
+                <div class="dropdown-menu">
+                    <div class="dropdown-header">{{ auth.username() }}</div>
+                    <button type="button" class="dropdown-item" (click)="logout()">Sair</button>
+                </div>
+            }
+        </div>
+    </header>
+    <main class="main-content">
+        <app-board />
+    </main>
 </div>

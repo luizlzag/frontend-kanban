@@ -1,15 +1,16 @@
-import { Component, inject, signal, HostListener } from '@angular/core';
+import { Component, inject, signal, HostListener, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
+import { BoardComponent } from '../board/board.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [],
+  imports: [BoardComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   protected auth = inject(AuthService);
   private router = inject(Router);
 
@@ -34,6 +35,10 @@ export class HomeComponent {
   logout(): void {
     this.auth.logout();
     this.router.navigate(['/login']);
+  }
+
+  ngOnInit(): void {
+    this.auth.fetchMe();
   }
 
   get avatarLetter(): string {

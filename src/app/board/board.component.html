@@ -1,0 +1,151 @@
+<div class="board">
+  @if (loading()) {
+    <div class="loading">Carregando...</div>
+  } @else if (error()) {
+    <div class="error">{{ error() }}</div>
+  } @else {
+    <div class="columns-scroll" cdkDropListGroup>
+      @for (col of columns(); track col.id) {
+        <div class="column">
+          <div class="column-header">
+            @if (editingColumn() === col.id) {
+              <input
+                type="text"
+                class="input-edit"
+                [value]="editColumnName()"
+                (input)="editColumnName.set($any($event.target).value)"
+                (keydown.enter)="saveEditColumn()"
+                (keydown.escape)="cancelEditColumn()"
+              />
+              <div class="column-actions">
+                <button type="button" class="btn-icon" (click)="saveEditColumn()" title="Salvar"><ng-icon name="heroCheck" size="18" /></button>
+                <button type="button" class="btn-icon" (click)="cancelEditColumn()" title="Cancelar"><ng-icon name="heroXMark" size="18" /></button>
+              </div>
+            } @else {
+              <h2 class="column-title">{{ col.name }}</h2>
+              <div class="column-actions">
+                <button type="button" class="btn-icon" (click)="startEditColumn(col)" title="Editar"><ng-icon name="heroPencil" size="18" /></button>
+                <button type="button" class="btn-icon btn-danger" (click)="deleteColumn(col)" title="Excluir"><ng-icon name="heroTrash" size="18" /></button>
+              </div>
+            }
+          </div>
+
+          <div
+            class="cards-list"
+            cdkDropList
+            [id]="'col-' + col.id"
+            [cdkDropListData]="col"
+            (cdkDropListDropped)="onCardDrop($event)"
+          >
+            @for (card of getCardsForColumn(col); track card.id) {
+              @if (editingCard() === card.id) {
+                <div class="card card-edit">
+                  <input
+                    type="text"
+                    class="input-edit"
+                    placeholder="Título"
+                    [value]="editCardTitle()"
+                    (input)="editCardTitle.set($any($event.target).value)"
+                  />
+                  <textarea
+                    class="textarea-edit"
+                    placeholder="Conteúdo (opcional)"
+                    [value]="editCardContent()"
+                    (input)="editCardContent.set($any($event.target).value)"
+                  ></textarea>
+                  <div class="card-actions">
+                    <button type="button" class="btn-sm" (click)="saveEditCard()">Salvar</button>
+                    <button type="button" class="btn-sm btn-secondary" (click)="cancelEditCard()">Cancelar</button>
+                  </div>
+                </div>
+              } @else if (movingCard() === card.id) {
+                <div class="card card-move">
+                  <span>Mover para:</span>
+                  <div class="move-options">
+                    @for (targetCol of columns(); track targetCol.id) {
+                      @if (targetCol.id !== col.id) {
+                        <button
+                          type="button"
+                          class="btn-sm"
+                          (click)="moveCardTo(card.id, targetCol.id)"
+                        >
+                          {{ targetCol.name }}
+                        </button>
+                      }
+                    }
+                  </div>
+                  <button type="button" class="btn-sm btn-secondary" (click)="cancelMoveCard()">Cancelar</button>
+                </div>
+              } @else {
+                <div class="card" cdkDrag [cdkDragData]="card">
+                  <div class="card-content">
+                    <h3 class="card-title">{{ card.title }}</h3>
+                    @if (card.content) {
+                      <p class="card-desc">{{ card.content }}</p>
+                    }
+                  </div>
+                  <div class="card-actions">
+                    <button type="button" class="btn-icon" (click)="startEditCard(card)" title="Editar"><ng-icon name="heroPencil" size="16" /></button>
+                    <button type="button" class="btn-icon" (click)="startMoveCard(card)" title="Mover"><ng-icon name="heroArrowPath" size="16" /></button>
+                    <button type="button" class="btn-icon btn-danger" (click)="deleteCard(card)" title="Excluir"><ng-icon name="heroTrash" size="16" /></button>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+
+          @if (addingCard() === col.id) {
+            <div class="card-form">
+              <input
+                type="text"
+                class="input-edit"
+                placeholder="Título do card"
+                [value]="newCardTitle()"
+                (input)="newCardTitle.set($any($event.target).value)"
+                (keydown.enter)="saveCard()"
+              />
+              <textarea
+                class="textarea-edit"
+                placeholder="Conteúdo (opcional)"
+                [value]="newCardContent()"
+                (input)="newCardContent.set($any($event.target).value)"
+              ></textarea>
+              <div class="card-actions">
+                <button type="button" class="btn-sm" (click)="saveCard()">Adicionar</button>
+                <button type="button" class="btn-sm btn-secondary" (click)="cancelAddCard()">Cancelar</button>
+              </div>
+            </div>
+          } @else {
+            <button type="button" class="btn-add-card" (click)="startAddCard(col.id)">
+              <ng-icon name="heroPlus" size="18" />
+              Adicionar card
+            </button>
+          }
+        </div>
+      }
+
+      @if (addingColumn()) {
+        <div class="column column-add">
+          <input
+            type="text"
+            class="input-edit"
+            placeholder="Nome da coluna"
+            [value]="newColumnName()"
+            (input)="newColumnName.set($any($event.target).value)"
+            (keydown.enter)="saveColumn()"
+            (keydown.escape)="cancelAddColumn()"
+          />
+          <div class="column-actions">
+            <button type="button" class="btn-sm" (click)="saveColumn()">Adicionar</button>
+            <button type="button" class="btn-sm btn-secondary" (click)="cancelAddColumn()">Cancelar</button>
+          </div>
+        </div>
+      } @else {
+        <button type="button" class="btn-add-column" (click)="startAddColumn()">
+          <ng-icon name="heroPlus" size="20" />
+          Nova coluna
+        </button>
+      }
+    </div>
+  }
+</div>

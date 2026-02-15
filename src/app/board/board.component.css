@@ -1,0 +1,250 @@
+.board {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.loading,
+.error {
+  padding: 2rem;
+  text-align: center;
+  color: #94a3b8;
+}
+
+.error {
+  color: #fca5a5;
+}
+
+.columns-scroll {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex: 1;
+  align-items: flex-start;
+}
+
+.column {
+  flex-shrink: 0;
+  width: 280px;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 8px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.column-add {
+  align-self: flex-start;
+}
+
+.column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.column-title {
+  flex: 1;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.column-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 40px;
+}
+
+.card {
+  background: #1e293b;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 6px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.card-content {
+  flex: 1;
+}
+
+.card-title {
+  margin: 0 0 0.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #f8fafc;
+}
+
+.card-desc {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #94a3b8;
+  white-space: pre-wrap;
+}
+
+.card-edit,
+.card-move {
+  background: rgba(30, 41, 59, 0.9);
+}
+
+.card-move .move-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.card-form {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px dashed rgba(148, 163, 184, 0.3);
+  border-radius: 6px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input-edit,
+.textarea-edit {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: #f8fafc;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 4px;
+  font-family: inherit;
+}
+
+.input-edit:focus,
+.textarea-edit:focus {
+  outline: none;
+  border-color: #60a5fa;
+}
+
+.textarea-edit {
+  min-height: 60px;
+  resize: vertical;
+}
+
+.btn-add-column,
+.btn-add-card {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: #94a3b8;
+  background: transparent;
+  border: 1px dashed rgba(148, 163, 184, 0.3);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.btn-add-column {
+  flex-shrink: 0;
+  width: 200px;
+  align-self: flex-start;
+}
+
+.btn-add-card {
+  width: 100%;
+}
+
+.btn-add-column:hover,
+.btn-add-card:hover {
+  border-color: #60a5fa;
+  color: #60a5fa;
+}
+
+.btn-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  color: #f8fafc;
+  background: #3b82f6;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-sm:hover {
+  background: #2563eb;
+}
+
+.btn-sm.btn-secondary {
+  background: rgba(148, 163, 184, 0.2);
+  color: #94a3b8;
+}
+
+.btn-sm.btn-secondary:hover {
+  background: rgba(148, 163, 184, 0.3);
+}
+
+.btn-icon {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.btn-icon:hover {
+  background: rgba(148, 163, 184, 0.2);
+  color: #f8fafc;
+}
+
+.btn-icon.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+/* CDK Drag and Drop */
+.card.cdk-drag-preview {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  border-radius: 6px;
+  opacity: 0.95;
+}
+
+.card.cdk-drag-placeholder {
+  opacity: 0.4;
+  border: 2px dashed rgba(148, 163, 184, 0.4);
+}
+
+.card.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cards-list.cdk-drop-list-dragging .card:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
