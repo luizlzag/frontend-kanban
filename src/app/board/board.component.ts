@@ -35,6 +35,9 @@ export class BoardComponent implements OnInit, OnDestroy {
   protected editCardTitle = signal('');
   protected editCardContent = signal('');
   protected movingCard = signal<string | null>(null);
+  protected updatingCardIds = signal<Set<string>>(new Set());
+  protected creatingCardColumnId = signal<string | null>(null);
+  protected creatingColumn = signal(false);
 
   ngOnInit(): void {
     this.loadColumns();
@@ -68,6 +71,22 @@ export class BoardComponent implements OnInit, OnDestroy {
       .subscribe((col) => this.handleColumnDeleted(col));
   }
 
+  protected isCardUpdating(cardId: string): boolean {
+    return this.updatingCardIds().has(cardId);
+  }
+
+  private addUpdatingCard(id: string): void {
+    this.updatingCardIds.update((set) => new Set(set).add(id));
+  }
+
+  private removeUpdatingCard(id: string): void {
+    this.updatingCardIds.update((set) => {
+      const next = new Set(set);
+      next.delete(id);
+      return next;
+    });
+  }
+
   private handleCardCreated(card: Card): void {
     const columnId = card.columnId ?? card.column?.id;
     if (!columnId) return;
@@ -84,6 +103,7 @@ export class BoardComponent implements OnInit, OnDestroy {
   }
 
   private handleCardUpdated(card: Card): void {
+    this.removeUpdatingCard(card.id);
     const columnId = card.columnId ?? card.column?.id;
     if (!columnId) return;
     this.columns.update((cols) => {
@@ -101,6 +121,7 @@ export class BoardComponent implements OnInit, OnDestroy {
   }
 
   private handleCardDeleted(card: Card): void {
+    this.removeUpdatingCard(card.id);
     this.columns.update((cols) =>
       cols.map((c) => ({
         ...c,
@@ -157,9 +178,16 @@ export class BoardComponent implements OnInit, OnDestroy {
     const name = this.newColumnName().trim();
     if (!name) return;
     const order = this.columns().length;
+    this.creatingColumn.set(true);
     this.columnsSvc.create({ name, order }).subscribe({
-      next: () => this.cancelAddColumn(),
-      error: (err) => this.error.set(err.error?.message || 'Erro ao criar coluna'),
+      next: () => {
+        this.creatingColumn.set(false);
+        this.cancelAddColumn();
+      },
+      error: (err) => {
+        this.creatingColumn.set(false);
+        this.error.set(err.error?.message || 'Erro ao criar coluna');
+      },
     });
   }
 
@@ -209,9 +237,16 @@ export class BoardComponent implements OnInit, OnDestroy {
     if (!columnId) return;
     const title = this.newCardTitle().trim();
     if (!title) return;
+    this.creatingCardColumnId.set(columnId);
     this.cardsSvc.create({ title, content: this.newCardContent().trim() || undefined, columnId }).subscribe({
-      next: () => this.cancelAddCard(),
-      error: (err) => this.error.set(err.error?.message || 'Erro ao criar card'),
+      next: () => {
+        this.creatingCardColumnId.set(null);
+        this.cancelAddCard();
+      },
+      error: (err) => {
+        this.creatingCardColumnId.set(null);
+        this.error.set(err.error?.message || 'Erro ao criar card');
+      },
     });
   }
 
@@ -232,9 +267,13 @@ export class BoardComponent implements OnInit, OnDestroy {
     if (!id) return;
     const title = this.editCardTitle().trim();
     if (!title) return;
+    this.addUpdatingCard(id);
     this.cardsSvc.update(id, { title, content: this.editCardContent().trim() || undefined }).subscribe({
       next: () => this.cancelEditCard(),
-      error: (err) => this.error.set(err.error?.message || 'Erro ao atualizar card'),
+      error: (err) => {
+        this.removeUpdatingCard(id);
+        this.error.set(err.error?.message || 'Erro ao atualizar card');
+      },
     });
   }
 
@@ -247,20 +286,25 @@ export class BoardComponent implements OnInit, OnDestroy {
   }
 
   moveCardTo(cardId: string, columnId: string): void {
+    this.addUpdatingCard(cardId);
     this.cardsSvc.move(cardId, columnId).subscribe({
-      next: () => {
-        this.cancelMoveCard();
-        this.loadColumns();
+      next: () => this.cancelMoveCard(),
+      error: (err) => {
+        this.removeUpdatingCard(cardId);
+        this.error.set(err.error?.message || 'Erro ao mover card');
       },
-      error: (err) => this.error.set(err.error?.message || 'Erro ao mover card'),
     });
   }
 
   deleteCard(card: Card): void {
     if (!confirm(`Excluir card "${card.title}"?`)) return;
+    this.addUpdatingCard(card.id);
     this.cardsSvc.delete(card.id).subscribe({
       next: () => {},
-      error: (err) => this.error.set(err.error?.message || 'Erro ao excluir card'),
+      error: (err) => {
+        this.removeUpdatingCard(card.id);
+        this.error.set(err.error?.message || 'Erro ao excluir card');
+      },
     });
   }
 
@@ -276,9 +320,44 @@ export class BoardComponent implements OnInit, OnDestroy {
     const card = event.item.data as Card;
     if (card.columnId === targetColumn.id) return;
 
+    const movedCard = { ...card, columnId: targetColumn.id, column: targetColumn };
+    this.applyCardMove(card.id, movedCard, targetColumn.id);
+    this.addUpdatingCard(card.id);
     this.cardsSvc.move(card.id, targetColumn.id).subscribe({
       next: () => this.cancelMoveCard(),
-      error: () => this.loadColumns(),
+      error: (err) => {
+        this.removeUpdatingCard(card.id);
+        this.revertCardMove(card, sourceColumn.id);
+        this.error.set(err?.error?.message || 'Erro ao mover card');
+      },
+    });
+  }
+
+  private applyCardMove(cardId: string, card: Card, targetColumnId: string): void {
+    this.columns.update((cols) => {
+      const newColIndex = cols.findIndex((c) => c.id === targetColumnId);
+      if (newColIndex === -1) return cols;
+      return cols
+        .map((c, i) => {
+          const cards = (c.cards || []).filter((x) => x.id !== cardId);
+          if (i === newColIndex) return { ...c, cards: [...cards, card] };
+          return { ...c, cards };
+        })
+        .sort((a, b) => a.order - b.order);
+    });
+  }
+
+  private revertCardMove(card: Card, sourceColumnId: string): void {
+    this.columns.update((cols) => {
+      const sourceIndex = cols.findIndex((c) => c.id === sourceColumnId);
+      if (sourceIndex === -1) return cols;
+      const sourceCol = cols[sourceIndex];
+      const restoredCard = { ...card, columnId: sourceColumnId, column: sourceCol };
+      return cols.map((c, i) => {
+        const cards = (c.cards || []).filter((x) => x.id !== card.id);
+        if (i === sourceIndex) return { ...c, cards: [...cards, restoredCard] };
+        return { ...c, cards };
+      });
     });
   }
 }

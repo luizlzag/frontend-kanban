@@ -39,7 +39,13 @@
           >
             @for (card of getCardsForColumn(col); track card.id) {
               @if (editingCard() === card.id) {
-                <div class="card card-edit">
+                <div class="card card-edit card-with-overlay">
+                  @if (isCardUpdating(card.id)) {
+                    <div class="card-loading-overlay">
+                      <div class="card-spinner"></div>
+                      <span>Salvando...</span>
+                    </div>
+                  }
                   <input
                     type="text"
                     class="input-edit"
@@ -59,7 +65,13 @@
                   </div>
                 </div>
               } @else if (movingCard() === card.id) {
-                <div class="card card-move">
+                <div class="card card-move card-with-overlay">
+                  @if (isCardUpdating(card.id)) {
+                    <div class="card-loading-overlay">
+                      <div class="card-spinner"></div>
+                      <span>Movendo...</span>
+                    </div>
+                  }
                   <span>Mover para:</span>
                   <div class="move-options">
                     @for (targetCol of columns(); track targetCol.id) {
@@ -105,7 +117,13 @@
           </div>
 
           @if (addingCard() === col.id) {
-            <div class="card-form">
+            <div class="card-form card-with-overlay">
+              @if (creatingCardColumnId() === col.id) {
+                <div class="card-loading-overlay">
+                  <div class="card-spinner"></div>
+                  <span>Criando...</span>
+                </div>
+              }
               <input
                 type="text"
                 class="input-edit"
@@ -121,8 +139,8 @@
                 (input)="newCardContent.set($any($event.target).value)"
               ></textarea>
               <div class="card-actions">
-                <button type="button" class="btn-sm" (click)="saveCard()">Adicionar</button>
-                <button type="button" class="btn-sm btn-secondary" (click)="cancelAddCard()">Cancelar</button>
+                <button type="button" class="btn-sm" (click)="saveCard()" [disabled]="creatingCardColumnId() === col.id">Adicionar</button>
+                <button type="button" class="btn-sm btn-secondary" (click)="cancelAddCard()" [disabled]="creatingCardColumnId() === col.id">Cancelar</button>
               </div>
             </div>
           } @else {
@@ -135,7 +153,13 @@
       }
 
       @if (addingColumn()) {
-        <div class="column column-add">
+        <div class="column column-add card-with-overlay">
+          @if (creatingColumn()) {
+            <div class="card-loading-overlay">
+              <div class="card-spinner"></div>
+              <span>Criando coluna...</span>
+            </div>
+          }
           <input
             type="text"
             class="input-edit"
@@ -146,8 +170,8 @@
             (keydown.escape)="cancelAddColumn()"
           />
           <div class="column-actions">
-            <button type="button" class="btn-sm" (click)="saveColumn()">Adicionar</button>
-            <button type="button" class="btn-sm btn-secondary" (click)="cancelAddColumn()">Cancelar</button>
+            <button type="button" class="btn-sm" (click)="saveColumn()" [disabled]="creatingColumn()">Adicionar</button>
+            <button type="button" class="btn-sm btn-secondary" (click)="cancelAddColumn()" [disabled]="creatingColumn()">Cancelar</button>
           </div>
         </div>
       } @else {

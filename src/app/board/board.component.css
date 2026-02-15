@@ -41,6 +41,7 @@
 
 .column-add {
   align-self: flex-start;
+  position: relative;
 }
 
 .column-header {
@@ -87,6 +88,38 @@
   gap: 0.5rem;
   min-width: 0;
   overflow: hidden;
+}
+
+.card-with-overlay {
+  position: relative;
+}
+
+.card-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.85);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  z-index: 10;
+  color: #94a3b8;
+  font-size: 0.8125rem;
+}
+
+.card-spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid rgba(148, 163, 184, 0.3);
+  border-top-color: #60a5fa;
+  border-radius: 50%;
+  animation: card-spin 0.7s linear infinite;
+}
+
+@keyframes card-spin {
+  to { transform: rotate(360deg); }
 }
 
 .card-content {
@@ -168,6 +201,7 @@
   gap: 0.5rem;
   min-width: 0;
   overflow: hidden;
+  position: relative;
 }
 
 .input-edit,
@@ -250,6 +284,12 @@
 
 .btn-sm.btn-secondary:hover {
   background: rgba(148, 163, 184, 0.3);
+}
+
+.btn-sm:disabled,
+.btn-sm.btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .btn-icon {
