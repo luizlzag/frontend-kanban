@@ -84,6 +84,16 @@
                       <p class="card-desc">{{ card.content }}</p>
                     }
                   </div>
+                  @if (card.createdBy) {
+                    <div class="card-author" title="Criado por {{ card.createdBy.username }}">
+                      @if (card.createdBy.avatarUrl) {
+                        <img [src]="card.createdBy.avatarUrl" [alt]="card.createdBy.username" class="card-author-avatar" />
+                      } @else {
+                        <span class="card-author-initial">{{ card.createdBy.username?.charAt(0)?.toUpperCase() || '?' }}</span>
+                      }
+                      <span class="card-author-name">{{ card.createdBy.username }}</span>
+                    </div>
+                  }
                   <div class="card-actions">
                     <button type="button" class="btn-icon" (click)="startEditCard(card)" title="Editar"><ng-icon name="heroPencil" size="16" /></button>
                     <button type="button" class="btn-icon" (click)="startMoveCard(card)" title="Mover"><ng-icon name="heroArrowPath" size="16" /></button>
